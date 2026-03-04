@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Deliverability Audit – Sales Ignition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #f5f7fa;
+    --navy-mid: #eef0f4;
+    --navy-light: #eaedf2;
+    --card: #ffffff;
+    --border: rgba(0,0,0,0.10);
+    --cyan: #007d64;
+    --cyan-dim: rgba(0,125,100,0.08);
+    --cyan-glow: rgba(0,125,100,0.20);
+    --yellow: #ffd84d;
+    --red: #ff4444;
+    --text: #1a1f2e;
+    --muted: #4a5568;
+    --white: #0f1421;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1,h2,h3,h4,h5 {
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1.2;
+    color: var(--white);
+  }
+
+  a { color: var(--cyan); text-decoration: none; }
+
+  /* STICKY TOP BAR */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245,247,250,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .top-bar strong { color: var(--cyan); }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background: var(--cyan);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform: scale(1); }
+    50% { opacity:0.5; transform: scale(1.4); }
+  }
+
+  /* SECTIONS */
+  .section { padding: 60px 20px; max-width: 720px; margin: 0 auto; }
+  .section-sm { padding: 40px 20px; max-width: 720px; margin: 0 auto; }
+
+  /* HERO */
+  .hero {
+    padding: 50px 20px 60px;
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .author-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 16px 6px 8px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .author-chip img {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .author-chip strong { color: var(--white); }
+
+  .hero h1 {
+    font-size: clamp(28px, 7vw, 48px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--cyan);
+    display: block;
+  }
+
+  .stars-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .stars-row strong { color: var(--white); }
+  .stars-row img { height: 16px; }
+
+  .hero-desc {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+  .hero-desc strong { color: var(--white); }
+
+  .hero-img {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    margin-bottom: 32px;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    background: var(--cyan);
+    color: var(--navy);
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 16px 36px;
+    border-radius: 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 24px var(--cyan-glow);
+    letter-spacing: 0.2px;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px var(--cyan-glow);
+    color: var(--navy);
+  }
+  .btn-secondary {
+    display: inline-block;
+    background: transparent;
+    color: var(--cyan);
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 15px 36px;
+    border-radius: 8px;
+    border: 2px solid var(--cyan);
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover {
+    background: var(--cyan-dim);
+    color: var(--cyan);
+  }
+
+  /* SOCIAL PROOF STRIP */
+  .proof-strip {
+    background: var(--navy-light);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .proof-strip .count { font-size: 36px; font-family: 'Open Sans', sans-serif; font-weight: 800; color: var(--cyan); }
+  .proof-strip p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .avatar-stack {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+    gap: -8px;
+  }
+  .avatar-stack img {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--navy-light);
+    object-fit: cover;
+    margin-left: -8px;
+  }
+  .avatar-stack img:first-child { margin-left: 0; }
+  .avatar-plus {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--navy-mid);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: -8px;
+    font-weight: 600;
+  }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  /* SECTION HEADINGS */
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .section-title {
+    font-size: clamp(24px, 5vw, 38px);
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -0.3px;
+  }
+  .section-title em {
+    font-style: normal;
+    color: var(--cyan);
+  }
+  .section-body {
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .section-body strong { color: var(--white); }
+
+  /* GRAPH SECTION */
+  .graph-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 32px;
+  }
+  .graph-card img { width: 100%; display: block; }
+
+  /* COMPARISON TABLE */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 32px;
+  }
+  @media (min-width: 600px) {
+    .compare-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .compare-col {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .compare-col.highlight {
+    border-color: var(--cyan);
+    background: var(--navy-light);
+    box-shadow: 0 0 0 1px var(--cyan-dim);
+  }
+  .compare-col h4 {
+    font-size: 15px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .compare-col ul { list-style: none; }
+  .compare-col ul li {
+    font-size: 14px;
+    color: var(--muted);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .compare-col ul li:last-child { border-bottom: none; }
+  .compare-col ul li::before {
+    content: '✕';
+    position: absolute;
+    left: 0;
+    color: var(--red);
+    font-size: 12px;
+    top: 9px;
+  }
+  .compare-col.highlight ul li::before {
+    content: '✓';
+    color: var(--cyan);
+  }
+  .compare-col.highlight ul li { color: var(--text); }
+
+  /* WHAT'S INSIDE */
+  .checklist {
+    list-style: none;
+    margin-top: 20px;
+    display: grid;
+    gap: 10px;
+  }
+  .checklist li {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--text);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+  }
+  .checklist li .icon {
+    color: var(--cyan);
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .checklist li strong { color: var(--white); display: block; margin-bottom: 2px; }
+
+  /* PROCESS STEPS */
+  .steps { list-style: none; margin-top: 28px; display: grid; gap: 16px; }
+  .step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--cyan-dim);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-content { padding-top: 4px; }
+  .step-content strong { color: var(--white); font-size: 15px; display: block; margin-bottom: 4px; }
+  .step-content p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  /* SAY GOODBYE */
+  .goodbye-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  @media (min-width: 480px) {
+    .goodbye-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .goodbye-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .goodbye-card .emoji { font-size: 24px; display: block; margin-bottom: 8px; }
+
+  /* TESTIMONIAL */
+  .testimonial-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
+    border-radius: 12px;
+    padding: 28px;
+    margin-top: 32px;
+  }
+  .testimonial-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .testimonial-meta img {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+  }
+  .testimonial-meta h4 { font-size: 15px; margin-bottom: 2px; }
+  .testimonial-meta p { font-size: 13px; color: var(--muted); }
+  .testimonial-date { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .testimonial-body { font-size: 15px; color: var(--text); line-height: 1.8; }
+
+  /* ABOUT */
+  .about-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+  @media (min-width: 540px) {
+    .about-wrap { flex-direction: row; align-items: flex-start; }
+  }
+  .about-img {
+    width: 140px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 10px 30px rgba(0,212,170,0.15));
+  }
+  .about-facts {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .about-facts li {
+    font-size: 14px;
+    color: var(--muted);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .about-facts li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--cyan);
+    font-size: 12px;
+  }
+
+  /* PRICING */
+  .pricing-section {
+    background: var(--navy-light);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 20px;
+  }
+  .pricing-inner { max-width: 720px; margin: 0 auto; }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 40px;
+  }
+  @media (min-width: 600px) {
+    .pricing-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .price-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+  }
+  .price-card.featured {
+    border-color: var(--cyan);
+    box-shadow: 0 0 40px rgba(0,212,170,0.12);
+  }
+  .price-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--cyan);
+    color: var(--navy);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 16px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .price-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .price-card h3 {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .price-amount {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .price-current {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--white);
+  }
+  .price-old {
+    font-size: 18px;
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+  .price-off {
+    background: rgba(255,68,68,0.15);
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .price-note { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  .price-list { list-style: none; margin: 20px 0 24px; display: grid; gap: 8px; }
+  .price-list li {
+    font-size: 13px;
+    color: var(--text);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .price-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--cyan);
+    font-size: 12px;
+  }
+  .price-list li strong { color: var(--white); }
+  .price-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .btn-price {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .btn-price-primary {
+    background: var(--cyan);
+    color: var(--navy);
+    box-shadow: 0 4px 24px var(--cyan-glow);
+  }
+  .btn-price-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 32px var(--cyan-glow); color: var(--navy); }
+  .btn-price-outline {
+    background: transparent;
+    color: var(--cyan);
+    border: 2px solid var(--cyan);
+  }
+  .btn-price-outline:hover { background: var(--cyan-dim); color: var(--cyan); }
+  .price-secure {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    justify-content: center;
+  }
+
+  /* GUARANTEE */
+  .guarantee-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    text-align: center;
+    margin-top: 40px;
+  }
+  @media (min-width: 540px) {
+    .guarantee-card { flex-direction: row; text-align: left; }
+  }
+  .guarantee-card img { width: 90px; flex-shrink: 0; }
+  .guarantee-card h3 { font-size: 18px; margin-bottom: 10px; }
+  .guarantee-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* URGENCY */
+  .urgency-bar {
+    background: rgba(255,68,68,0.08);
+    border: 1px solid rgba(255,68,68,0.2);
+    border-radius: 8px;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--red);
+    font-weight: 600;
+    margin: 24px 0;
+    font-family: 'Open Sans', sans-serif;
+  }
+  .urgency-bar::before { content: '▲ '; }
+
+  /* FOOTER */
+  .footer {
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .footer strong { color: var(--cyan); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(20px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  .hero { animation: fadeUp 0.6s ease both; }
+</style>
+</head>
+<body>
+
+<!-- STICKY TOP BAR -->
+<div class="top-bar">
+  <div class="pulse-dot"></div>
+  <span>Limited audit spots available — <strong>Only 3 spots left this month</strong></span>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="author-chip">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/10/jaka_smid-removebg-preview-1.png" alt="Steven Wagner" id="author-photo">
+    <span><strong>Steven Wagner</strong> · Email Deliverability Expert</span>
+  </div>
+
+  <h1>Email Deliverability Audit for <em>DTC & E-Commerce Senders</em></h1>
+
+  <div class="stars-row">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/10/yellow-strs.svg" alt="5 stars">
+    <strong>5.00</strong>
+    <span>based on 40+ audits</span>
+  </div>
+
+  <p class="hero-desc">
+    Stop letting <strong>reputation problems silently kill your revenue.</strong> I'll personally audit your sending infrastructure, identify exactly where and why your emails are missing the inbox, and give you a clear roadmap to fix it — fast.
+  </p>
+
+  <img
+    src="https://www.conversion.care/wp-content/uploads/2025/10/conversion-audit-1024x613.png"
+    alt="Deliverability Audit Example"
+    class="hero-img"
+    id="hero-screenshot"
+  >
+
+  <a href="#pricing" class="btn-primary">Show me the audit options →</a>
+</div>
+
+<!-- SOCIAL PROOF STRIP -->
+<div class="proof-strip">
+  <div class="count">80+</div>
+  <p>DTC brands and e-commerce senders are already hitting the inbox. <a href="#pricing"><strong>Join them.</strong></a></p>
+  <div class="avatar-stack">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/11/dejan-lukic.jpeg" alt="">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/12/File-118.jpg" alt="">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/02/Screenshot-2023-02-28-at-11.29.19.png" alt="">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/10/oyekunle.jpeg" alt="">
+    <img src="https://www.conversion.care/wp-content/uploads/2024/04/ziga.jpeg" alt="">
+    <div class="avatar-plus">+75</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SECTION 1: THE PROBLEM -->
+<div class="section">
+  <div class="eyebrow">The Real Cost of Poor Deliverability</div>
+  <h2 class="section-title">Your emails are disappearing — and you're <em>paying for it</em></h2>
+  <p class="section-body">
+    Every email you send to a subscriber costs money — ads, agency fees, Klaviyo seats, creative. But if those emails are landing in spam, or getting blocked entirely, you're not just wasting marketing budget. <strong>You're actively destroying the sender reputation you've spent years building.</strong>
+    <br><br>
+    The algorithm that decides inbox vs. spam is like a black box. But what you <strong>CAN control</strong> is your sending infrastructure, your reputation signals, and your list hygiene — and fixing these has a direct, measurable impact on your revenue.
+  </p>
+
+  <div class="graph-card">
+    <img src="https://www.conversion.care/wp-content/uploads/2024/04/CRO-AUDIT-graph-1024x634.png" alt="Deliverability impact on revenue" id="graph-img">
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SECTION 2: WHY NOT DIY -->
+<div class="section">
+  <div class="eyebrow">Why Generic Solutions Fail</div>
+  <h2 class="section-title">Why you should <em>avoid</em> 🔥 generic warm-up tools and cheap audits</h2>
+  <p class="section-body">
+    Whether you use a $49/month warm-up tool, ask your ESP's support team, or try to diagnose it yourself through Google Postmaster — you'll end up with confusing dashboards, generic advice, and no clear path forward.
+    <br><br>
+    These tools are built for mass market. But your sender reputation is specific to your domain, your IP, your content, and your sending patterns. <strong>Cookie-cutter fixes create new problems.</strong>
+  </p>
+
+  <div class="compare-grid">
+    <div class="compare-col">
+      <h4>🤮 Generic Tools & Cheap Audits</h4>
+      <ul>
+        <li><strong>No real diagnosis:</strong> Surface-level metrics with no root cause analysis</li>
+        <li><strong>Slow process:</strong> Takes months of warm-up with no guarantees</li>
+        <li><strong>One-size-fits-all:</strong> Advice not tailored to your ESP, list, or industry</li>
+        <li><strong>Hidden fees:</strong> Monthly retainers that keep you dependent</li>
+        <li><strong>No accountability:</strong> If it doesn't work, you're on your own</li>
+      </ul>
+    </div>
+    <div class="compare-col highlight">
+      <h4>✉️ My Deliverability Audit</h4>
+      <ul>
+        <li><strong>Deep root cause analysis:</strong> I find exactly why you're missing the inbox</li>
+        <li><strong>Immediate action plan:</strong> Prioritized fixes you can implement this week</li>
+        <li><strong>Tailored to your setup:</strong> Klaviyo, Attentive, your domain, your IP pools</li>
+        <li><strong>One-time investment:</strong> No retainers, no hidden fees, clear deliverable</li>
+        <li><strong>My reputation is on the line:</strong> 100% satisfaction or money back</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SECTION 3: WHAT'S INSIDE -->
+<div class="section">
+  <div class="eyebrow">The Deliverable</div>
+  <h2 class="section-title">Here's <em>exactly</em> what's inside your audit report:</h2>
+
+  <ul class="checklist">
+    <li>
+      <span class="icon">📬</span>
+      <div><strong>Inbox Placement Diagnosis</strong> Gmail, Yahoo, Outlook — where are you landing and why?</div>
+    </li>
+    <li>
+      <span class="icon">🏆</span>
+      <div><strong>Sender Reputation Score & History</strong> Domain age, IP reputation, blacklist status, and trend data</div>
+    </li>
+    <li>
+      <span class="icon">🔑</span>
+      <div><strong>Authentication Audit (SPF, DKIM, DMARC)</strong> Full technical review of your DNS records and authentication setup</div>
+    </li>
+    <li>
+      <span class="icon">📋</span>
+      <div><strong>List Health Analysis</strong> Engagement rates, invalid/risky addresses, suppression hygiene, and list age</div>
+    </li>
+    <li>
+      <span class="icon">⚠️</span>
+      <div><strong>Top 5 Priority Fixes</strong> The highest-impact actions ranked and explained — do these first</div>
+    </li>
+    <li>
+      <span class="icon">📊</span>
+      <div><strong>Sending Volume & Frequency Audit</strong> Are you sending too fast, too slow, or to the wrong segments?</div>
+    </li>
+    <li>
+      <span class="icon">🧪</span>
+      <div><strong>Content & Spam Trigger Review</strong> Subject lines, link structure, image-to-text ratio, unsubscribe mechanics</div>
+    </li>
+    <li>
+      <span class="icon">🗺️</span>
+      <div><strong>30-Day Restoration Roadmap</strong> Step-by-step plan to restore your reputation and sustain it long-term</div>
+    </li>
+  </ul>
+
+  <br>
+  <img src="https://www.conversion.care/wp-content/uploads/2023/10/no-bullshit.png" alt="No Bullshit Promise" style="height:60px; margin: 16px auto 0; display:block;" id="no-bs-badge">
+  <br>
+  <div style="text-align:center; margin-top: 8px;">
+    <a href="#pricing" class="btn-primary">Get my deliverability audit →</a>
+  </div>
+</div>
+
+<!-- URGENCY BAR -->
+<div style="padding: 0 20px; max-width: 720px; margin: 0 auto;">
+  <div class="urgency-bar">Only 3 spots left this month. Audits take 5 business days.</div>
+</div>
+
+<hr class="divider">
+
+<!-- SOCIAL PROOF REPEAT -->
+<div class="proof-strip">
+  <div class="count">80+</div>
+  <p>Satisfied senders are already hitting the inbox. <a href="#pricing"><strong>Join them now!</strong></a></p>
+  <div class="avatar-stack">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/11/dejan-lukic.jpeg" alt="">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/12/File-118.jpg" alt="">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/02/Screenshot-2023-02-28-at-11.29.19.png" alt="">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/10/oyekunle.jpeg" alt="">
+    <img src="https://www.conversion.care/wp-content/uploads/2024/04/ziga.jpeg" alt="">
+    <div class="avatar-plus">+75</div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SECTION 4: ABOUT -->
+<div class="section">
+  <div class="eyebrow">Why Me</div>
+  <h2 class="section-title">Why I'm the right person to audit your <em>email program</em></h2>
+
+  <div class="about-wrap">
+    <img src="https://www.conversion.care/wp-content/uploads/2023/10/jaka_smid-removebg-preview-1.png" alt="Steven Wagner" class="about-img" id="about-photo">
+    <div>
+      <p class="section-body" style="margin-bottom: 16px;">Since you're here, here are the facts that matter:</p>
+      <ul class="about-facts">
+        <li>10+ years of email deliverability and marketing automation experience</li>
+        <li>Deep expertise in Klaviyo, Attentive, ActiveCampaign, and HubSpot</li>
+        <li>Built deliverability infrastructure for brands doing $1M–$50M+ in revenue</li>
+        <li>Founder of emaildelivery.co and inboxsmarts.com — built from real operator experience</li>
+        <li>Worked with True Citrus, Milton's Craft Bakers, and 80+ DTC brands</li>
+        <li>Specialize in senders "too big for freelancers, too small for agencies"</li>
+      </ul>
+      <br>
+      <p class="section-body">When you hire me, <strong>you get everything I've learned packed into an actionable, custom deliverability audit.</strong></p>
+    </div>
+  </div>
+
+  <br>
+  <div class="eyebrow" style="margin-top:32px;">👋 Say goodbye to:</div>
+  <div class="goodbye-grid">
+    <div class="goodbye-card">
+      <span class="emoji">📉</span>
+      Low open rates even when you're sending to engaged subscribers
+    </div>
+    <div class="goodbye-card">
+      <span class="emoji">🚫</span>
+      Emails blocked by Gmail, Yahoo, or Outlook — no warnings, no explanation
+    </div>
+    <div class="goodbye-card">
+      <span class="emoji">😤</span>
+      Confusing dashboards from Postmaster that tell you nothing useful
+    </div>
+    <div class="goodbye-card">
+      <span class="emoji">🔥</span>
+      Burning your list and reputation with every send
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- SECTION 5: PROCESS -->
+<div class="section">
+  <div class="eyebrow">My Process</div>
+  <h2 class="section-title">Here's how the audit <em>works:</em></h2>
+
+  <ul class="steps">
+    <li class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <strong>You submit your intake questionnaire</strong>
+        <p>After purchase, you'll get a short form covering your ESP, sending domain, recent metrics, and any issues you've noticed. Takes under 10 minutes.</p>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <strong>I audit everything — no detail too small</strong>
+        <p>I run your domain and IPs through comprehensive diagnostics: authentication, blacklists, reputation scores, list quality, content analysis, and engagement pattern review.</p>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <strong>You receive a full audit report within 5 business days</strong>
+        <p>A detailed PDF report with findings, visual screenshots of every issue, and a prioritized action plan — organized by urgency and impact.</p>
+      </div>
+    </li>
+    <li class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <strong>30-minute walkthrough call included</strong>
+        <p>We review the report together, answer your questions, and make sure your team knows exactly what to implement and in what order.</p>
+      </div>
+    </li>
+  </ul>
+
+  <br>
+  <div style="text-align:center; margin-top: 24px;">
+    <a href="#pricing" class="btn-primary">Get my deliverability audit →</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- TESTIMONIAL -->
+<div class="section">
+  <div class="eyebrow">Real Results</div>
+  <h2 class="section-title">How one brand went from <em>spam folder to inbox</em> in 30 days</h2>
+
+  <div class="testimonial-card">
+    <div class="testimonial-meta">
+      <img src="https://www.conversion.care/wp-content/uploads/2024/04/ziga-150x150.jpeg" alt="Client" id="testimonial-photo">
+      <div>
+        <h4>Client Name</h4>
+        <p>DTC Brand · [yourstore.com]</p>
+      </div>
+    </div>
+    <div class="stars-row" style="justify-content:flex-start; margin-bottom:12px;">
+      <img src="https://www.conversion.care/wp-content/uploads/2023/10/yellow-strs.svg" alt="5 stars" style="height:14px">
+    </div>
+    <p class="testimonial-date">Verified review · February 2025</p>
+    <p class="testimonial-body">
+      "We had been struggling with declining open rates for months and had no idea why. Steven's audit found 3 major issues we never would have caught on our own — our DMARC was misconfigured, we had a cold IP that was on a blacklist, and our re-engagement segment was actually hurting our reputation. Within 30 days of implementing the fixes, our deliverability was back to where it needed to be and our open rates jumped significantly. Worth every penny."
+    </p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- PRICING -->
+<div class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div style="text-align:center; margin-bottom: 8px;">
+      <div class="eyebrow" style="text-align:center;">Stop Leaving Revenue in the Spam Folder</div>
+      <h2 class="section-title">I'll tell you exactly how to <em>fix your deliverability</em></h2>
+    </div>
+
+    <div class="urgency-bar" style="max-width:480px; margin: 0 auto 32px;">Only 3 spots left this month</div>
+
+    <div class="pricing-grid">
+
+      <!-- TIER 1 -->
+      <div class="price-card">
+        <div class="price-label">Foundation Audit</div>
+        <h3>Core Deliverability Audit</h3>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Diagnose and fix your most critical inbox placement issues</p>
+        <div class="price-amount">
+          <span class="price-current">$997</span>
+          <span class="price-old">$1,297</span>
+          <span class="price-off">23% OFF</span>
+        </div>
+        <p class="price-note">Limited-time rate · no retainer required</p>
+        <hr class="price-divider">
+        <ul class="price-list">
+          <li><strong>Full authentication audit</strong> (SPF, DKIM, DMARC)</li>
+          <li><strong>Domain & IP reputation</strong> + blacklist check</li>
+          <li><strong>Inbox placement test</strong> across Gmail, Yahoo, Outlook</li>
+          <li><strong>Top 5 priority fixes</strong> with step-by-step instructions</li>
+          <li><strong>Sending pattern review</strong> (volume, frequency, segments)</li>
+          <li><strong>30-minute strategy call</strong> to review findings</li>
+          <li>Delivered within 5 business days</li>
+        </ul>
+        <a href="https://saleignite.spiffy.co/checkout/core-audit" class="btn-price btn-price-outline">I want the Core Audit</a>
+        <div class="price-secure">🔒 Secure checkout · Money-back guarantee</div>
+      </div>
+
+      <!-- TIER 2 -->
+      <div class="price-card featured">
+        <div class="price-badge">MOST POPULAR</div>
+        <div class="price-label">Complete Audit</div>
+        <h3>Full Deliverability & List Health Audit</h3>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">Deep audit + list health + 30-day restoration roadmap</p>
+        <div class="price-amount">
+          <span class="price-current">$1,997</span>
+          <span class="price-old">$2,497</span>
+          <span class="price-off">20% OFF</span>
+        </div>
+        <p class="price-note">Limited-time rate · no retainer required</p>
+        <hr class="price-divider">
+        <ul class="price-list">
+          <li><strong>Everything in Core Audit</strong></li>
+          <li><strong>Full list health analysis</strong> — invalid, risky & toxic addresses</li>
+          <li><strong>Engagement segmentation review</strong> — who is hurting you?</li>
+          <li><strong>Content & spam trigger audit</strong> on your live campaigns</li>
+          <li><strong>Suppression list audit</strong> and hygiene recommendations</li>
+          <li><strong>ESP configuration review</strong> (Klaviyo, AC, or HubSpot)</li>
+          <li><strong>30-day restoration roadmap</strong> — step-by-step recovery plan</li>
+          <li><strong>60-minute strategy call</strong> + 30-day follow-up check-in</li>
+          <li>Delivered within 5 business days</li>
+        </ul>
+        <a href="https://saleignite.spiffy.co/checkout/full-email-list-audit-checkout" class="btn-price btn-price-primary">I want the Full Audit</a>
+        <div class="price-secure">🔒 Secure checkout · Money-back guarantee</div>
+      </div>
+
+    </div>
+
+    <!-- GUARANTEE -->
+    <div class="guarantee-card">
+      <img src="https://www.conversion.care/wp-content/uploads/2023/10/image-27-3.png" alt="Money Back Guarantee" id="guarantee-badge">
+      <div>
+        <h3>I stand behind every audit, 100%.</h3>
+        <p>
+          After auditing dozens of e-commerce email programs, I'm confident I will find critical issues affecting your deliverability — or I'll refund every dollar. If you don't believe this is the most actionable deliverability audit you've ever received, just say the word.
+          <br><br>
+          You're my client and my partner. My reputation was built entirely by word of mouth, and I intend to keep it that way.
+        </p>
+      </div>
+    </div>
+
+    <!-- POST-PRICING RATINGS -->
+    <div style="text-align:center; margin-top: 32px;">
+      <div class="stars-row" style="justify-content:center;">
+        <img src="https://www.conversion.care/wp-content/uploads/2023/10/yellow-strs.svg" alt="5 stars">
+        <strong>5.00</strong>
+        <span style="color:var(--muted); font-size:13px;">Based on 40+ audits</span>
+      </div>
+      <div class="avatar-stack" style="margin-top:12px;">
+        <img src="https://www.conversion.care/wp-content/uploads/2023/11/dejan-lukic.jpeg" alt="">
+        <img src="https://www.conversion.care/wp-content/uploads/2023/12/File-118.jpg" alt="">
+        <img src="https://www.conversion.care/wp-content/uploads/2023/02/Screenshot-2023-02-28-at-11.29.19.png" alt="">
+        <img src="https://www.conversion.care/wp-content/uploads/2023/10/oyekunle.jpeg" alt="">
+        <img src="https://www.conversion.care/wp-content/uploads/2024/04/ziga.jpeg" alt="">
+        <div class="avatar-plus">+75</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p><strong>Sales Ignition</strong> · emaildelivery.co · Steven Wagner</p>
+  <p style="margin-top:8px;">© 2025 Sales Ignition LLC · South Carolina · All rights reserved</p>
+</div>
+
+</body>
+</html>
